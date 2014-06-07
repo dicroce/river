@@ -72,6 +72,10 @@ void river_server_response_test::test_set_body()
     UT_ASSERT( res.get_body_as_string() == "your_mom" );
 }
 
+#include <algorithm>
+
+bool is_odd( int i ) { return ((i%2)==1); }
+
 void river_server_response_test::test_write_response()
 {
     int port = UT_NEXT_PORT();

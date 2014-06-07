@@ -1,8 +1,37 @@
 
+/// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=--=-=-=-=-=-
+/// river
+/// Copyright (c) 2014, Tony Di Croce
+/// All rights reserved.
+///
+/// Redistribution and use in source and binary forms, with or without modification, are permitted
+/// provided that the following conditions are met:
+///
+/// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and
+///    the following disclaimer.
+/// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+///    and the following disclaimer in the documentation and/or other materials provided with the
+///    distribution.
+///
+/// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+/// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+/// PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+/// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+/// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+/// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+/// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+/// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+///
+/// The views and conclusions contained in the software and documentation are those of the authors and
+/// should not be interpreted as representing official policies, either expressed or implied, of the cppkit
+/// Project.
+/// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=--=-=-=-=-=-
+
 #include "river/river_server.h"
 #include "river/river_exception.h"
 
 #include <exception>
+#include <algorithm>
 
 using namespace river;
 using namespace cppkit;
@@ -88,12 +117,19 @@ void river_server::stop_session( ck_string id )
 
     {
         unique_lock<recursive_mutex> guard( _connectionsLock );
+#if 1
         for( auto iter = _connections.begin(), end = _connections.end(); iter != end; )
         {
             if( (*iter)->get_session_id() == id )
                 iter = _connections.erase( iter );
             else ++iter;
         }
+#else
+        _connections.erase( remove_if( _connections.begin(),
+                                       _connections.end(),
+                                       [&](shared_ptr<server_connection> i)->bool{ return (i->get_session_id() == id); } ),
+                            _connections.end() );
+#endif
     }
 }
 
@@ -156,7 +192,7 @@ void* river_server::_entry_point()
 
             {
                 unique_lock<recursive_mutex> guard( _connectionsLock );
-
+#if 1
                 for( auto iter = _connections.begin(), end = _connections.end(); iter != end; )
                 {
                     if( !(*iter)->running() )
@@ -165,6 +201,12 @@ void* river_server::_entry_point()
                     }
                     else ++iter;
                 }
+#else
+                _connections.erase( remove_if( _connections.begin(),
+                                               _connections.end(),
+                                               [](shared_ptr<server_connection> i)->bool{ return !i->running(); } ),
+                                    _connections.end() );
+#endif
             }
         }
         catch( std::exception& ex )
@@ -307,12 +349,19 @@ void river_server::_handle_setup( shared_ptr<server_request> request )
 shared_ptr<session_base> river_server::_locate_session_prototype( const ck_string& resourcePath )
 {
     unique_lock<recursive_mutex> guard( _prototypesLock );
-
+#if 1
     for( auto i = _sessionPrototypes.begin(), end = _sessionPrototypes.end(); i != end; i++ )
     {
         if( (*i)->handles_this_presentation( resourcePath ) )
             return *i;
     }
+#else
+    for( auto i : _sessionPrototypes )
+    {
+        if( i->handles_this_presentation( resourcePath ) )
+            return i;
+    }
+#endif
 
     CK_STHROW( river_exception, ( "Suitable connection prototype for this presentation not found." ) );
 }
