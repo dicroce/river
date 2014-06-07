@@ -236,7 +236,7 @@ shared_ptr<server_response> river_server::route_request( shared_ptr<server_reque
     shared_ptr<server_response> response = session->handle_request( request );
 
     if( m == M_TEARDOWN )
-    {//SM5200-2631 exposed the need to reduce this locks scope
+    {
         unique_lock<recursive_mutex> guard( _sessionsLock );
         _sessions.erase( sessionHeader );
     }
@@ -317,8 +317,11 @@ void river_server::_handle_setup( shared_ptr<server_request> request )
     session->update_keep_alive_time();
 
     session->set_session_id( sessionHeader );
-    unique_lock<recursive_mutex> guard( _sessionsLock );
-    _sessions.insert( make_pair( sessionHeader, session ) );
+
+    {
+        unique_lock<recursive_mutex> guard( _sessionsLock );
+        _sessions.insert( make_pair( sessionHeader, session ) );
+    }
 }
 
 shared_ptr<session_base> river_server::_locate_session_prototype( const ck_string& resourcePath )
