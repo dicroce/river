@@ -28,14 +28,14 @@
 /// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=--=-=-=-=-=-
 
 #include "river/stream_keeper.h"
-#include "river/river_server.h"
+#include "river/rtsp_server.h"
 #include "cppkit/os/ck_time_utils.h"
 
 using namespace river;
 using namespace cppkit;
 using namespace std;
 
-stream_keeper::stream_keeper( river_server& server ) :
+stream_keeper::stream_keeper( rtsp_server& server ) :
     _server( server ),
     _sessions(),
     _running( false ),

@@ -39,12 +39,12 @@
 namespace river
 {
 
-class river_server;
+class rtsp_server;
 
 class stream_keeper
 {
 public:
-    CK_API stream_keeper( river_server& server  );
+    CK_API stream_keeper( rtsp_server& server  );
     CK_API virtual ~stream_keeper() throw();
 
     CK_API void start();
@@ -56,7 +56,7 @@ private:
 
     void _entry_point();
 
-    river_server& _server;
+    rtsp_server& _server;
     std::map<std::string, cppkit::ck_string> _sessions;
     bool _running;
     std::thread _thread;

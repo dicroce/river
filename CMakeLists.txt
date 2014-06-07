@@ -11,7 +11,7 @@ set(SOURCES source/river_exception.cpp
             source/server_request.cpp
             source/server_response.cpp
             source/stream_keeper.cpp
-            source/river_server.cpp)
+            source/rtsp_server.cpp)
 
 set(COMMON_LIBS cppkit)
 

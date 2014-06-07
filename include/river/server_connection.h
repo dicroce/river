@@ -38,12 +38,12 @@
 namespace river
 {
 
-class river_server;
+class rtsp_server;
 
 class server_connection
 {
 public:
-    CK_API server_connection( river_server* server,
+    CK_API server_connection( rtsp_server* server,
                               std::shared_ptr<cppkit::ck_socket> clientSocket = new cppkit::ck_socket );
 
     CK_API virtual ~server_connection() throw();
@@ -67,7 +67,7 @@ private:
 
     std::thread _thread;
     std::shared_ptr<cppkit::ck_socket> _clientSocket;
-    river_server* _server;
+    rtsp_server* _server;
     cppkit::ck_string _sessionID;
     //Called "myrunning" even though it sounds douche, because it indicates the base class has a "running" member
     bool _myrunning;

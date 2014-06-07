@@ -28,7 +28,7 @@
 /// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=--=-=-=-=-=-
 
 #include "river/server_connection.h"
-#include "river/river_server.h"
+#include "river/rtsp_server.h"
 #include "river/river_exception.h"
 
 #include <exception>
@@ -37,7 +37,7 @@ using namespace river;
 using namespace cppkit;
 using namespace std;
 
-server_connection::server_connection( river_server* server, shared_ptr<ck_socket> clientSocket) :
+server_connection::server_connection( rtsp_server* server, shared_ptr<ck_socket> clientSocket) :
     _thread(),
     _clientSocket( clientSocket ),
     _server( server ),
@@ -113,7 +113,7 @@ void server_connection::_entry_point()
                     if( _sessionID.length() )
                         throw_rtsp_exception( 400, "Got SETUP, but we already have a session ID." );
 
-                    _sessionID = river_server::get_next_session_id();
+                    _sessionID = rtsp_server::get_next_session_id();
 
                     request->set_header( "Session", _sessionID );
                 }

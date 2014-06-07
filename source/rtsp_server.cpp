@@ -27,7 +27,7 @@
 /// Project.
 /// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=--=-=-=-=-=-
 
-#include "river/river_server.h"
+#include "river/rtsp_server.h"
 #include "river/river_exception.h"
 
 #include <exception>
@@ -37,10 +37,10 @@ using namespace river;
 using namespace cppkit;
 using namespace std;
 
-uint32_t river_server::_next_session_id = 42;
-recursive_mutex river_server::_session_id_lock;
+uint32_t rtsp_server::_next_session_id = 42;
+recursive_mutex rtsp_server::_session_id_lock;
 
-river_server::river_server( const ck_string& serverIP, int port ) :
+rtsp_server::rtsp_server( const ck_string& serverIP, int port ) :
     _thread(),
     _port( port ),
     _running( false ),
@@ -60,7 +60,7 @@ river_server::river_server( const ck_string& serverIP, int port ) :
     _serverSocket->listen();
 }
 
-river_server::river_server( ck_socket::ck_socket_type type, const ck_string& serverIP, int port ) :
+rtsp_server::rtsp_server( ck_socket::ck_socket_type type, const ck_string& serverIP, int port ) :
     _thread(),
     _port( port ),
     _running( false ),
@@ -80,20 +80,20 @@ river_server::river_server( ck_socket::ck_socket_type type, const ck_string& ser
     _serverSocket->listen();
 }
 
-river_server::~river_server() throw()
+rtsp_server::~rtsp_server() throw()
 {
     if( _running )
         shutdown();
 }
 
-void river_server::attach_session_prototype( shared_ptr<session_base> session )
+void rtsp_server::attach_session_prototype( shared_ptr<session_base> session )
 {
     unique_lock<recursive_mutex> guard( _prototypesLock );
 
     _sessionPrototypes.push_back( session );
 }
 
-void river_server::startup()
+void rtsp_server::startup()
 {
     {
         unique_lock<recursive_mutex> guard( _prototypesLock );
@@ -101,12 +101,12 @@ void river_server::startup()
             CK_STHROW( river_exception, ( "Please call AttachSessionPrototype() at least once before starting this server." ));
     }
 
-   _thread = std::thread( &river_server::_entry_point, this );
+   _thread = std::thread( &rtsp_server::_entry_point, this );
 
     _keepAliveTimer->start();
 }
 
-void river_server::stop_session( ck_string id )
+void rtsp_server::stop_session( ck_string id )
 {
     {
         unique_lock<recursive_mutex> guard( _sessionsLock );
@@ -126,7 +126,7 @@ void river_server::stop_session( ck_string id )
     }
 }
 
-void river_server::check_inactive_sessions()
+void rtsp_server::check_inactive_sessions()
 {
     unique_lock<recursive_mutex> guard( _sessionsLock );
 
@@ -147,7 +147,7 @@ void river_server::check_inactive_sessions()
     }
 }
 
-void river_server::shutdown()
+void rtsp_server::shutdown()
 {
     _running = false;
 
@@ -164,7 +164,7 @@ void river_server::shutdown()
     }
 }
 
-void* river_server::_entry_point()
+void* rtsp_server::_entry_point()
 {
     _running = true;
 
@@ -201,14 +201,14 @@ void* river_server::_entry_point()
         }
         catch( std::exception& ex )
         {
-            CK_LOG_ERROR( "[river_server] EntryPoint Exception: %s", ex.what() );
+            CK_LOG_ERROR( "[rtsp_server] EntryPoint Exception: %s", ex.what() );
         }
     }
 
     return NULL;
 }
 
-shared_ptr<server_response> river_server::route_request( shared_ptr<server_request> request )
+shared_ptr<server_response> rtsp_server::route_request( shared_ptr<server_request> request )
 {
     method m = request->get_method();
 
@@ -253,7 +253,7 @@ shared_ptr<server_response> river_server::route_request( shared_ptr<server_reque
     return response;
 }
 
-ck_string river_server::get_next_session_id()
+ck_string rtsp_server::get_next_session_id()
 {
     unique_lock<recursive_mutex> guard( _session_id_lock );
 
@@ -264,7 +264,7 @@ ck_string river_server::get_next_session_id()
     return ID;
 }
 
-shared_ptr<server_response> river_server::_handle_options( shared_ptr<server_request> request )
+shared_ptr<server_response> rtsp_server::_handle_options( shared_ptr<server_request> request )
 {
     shared_ptr<session_base> session = _locate_session_prototype(request->get_resource_path().strip());
 
@@ -275,7 +275,7 @@ shared_ptr<server_response> river_server::_handle_options( shared_ptr<server_req
     return response;
 }
 
-shared_ptr<server_response> river_server::_handle_describe( shared_ptr<server_request> request )
+shared_ptr<server_response> rtsp_server::_handle_describe( shared_ptr<server_request> request )
 {
     ck_string presentation = request->get_resource_path().strip();
 
@@ -293,7 +293,7 @@ shared_ptr<server_response> river_server::_handle_describe( shared_ptr<server_re
     return response;
 }
 
-void river_server::_handle_setup( shared_ptr<server_request> request )
+void rtsp_server::_handle_setup( shared_ptr<server_request> request )
 {
     ck_string sessionHeader;
     if( !request->get_header( "Session", sessionHeader ) )
@@ -317,7 +317,7 @@ void river_server::_handle_setup( shared_ptr<server_request> request )
     }
 }
 
-shared_ptr<session_base> river_server::_locate_session_prototype( const ck_string& resourcePath )
+shared_ptr<session_base> rtsp_server::_locate_session_prototype( const ck_string& resourcePath )
 {
     unique_lock<recursive_mutex> guard( _prototypesLock );
     for( auto i : _sessionPrototypes )

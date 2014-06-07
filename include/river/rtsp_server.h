@@ -27,8 +27,8 @@
 /// Project.
 /// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=--=-=-=-=-=-
 
-#ifndef _river_river_server_h
-#define _river_river_server_h
+#ifndef _river_rtsp_server_h
+#define _river_rtsp_server_h
 
 #include <map>
 #include <memory>
@@ -47,12 +47,12 @@
 namespace river
 {
 
-class river_server
+class rtsp_server
 {
 public:
-    CK_API river_server( const cppkit::ck_string& serverIP, int port = 554 );
-    CK_API river_server(  cppkit::ck_socket::ck_socket_type type, const cppkit::ck_string& serverIP, int port = 554 );
-    CK_API virtual ~river_server() throw();
+    CK_API rtsp_server( const cppkit::ck_string& serverIP, int port = 554 );
+    CK_API rtsp_server(  cppkit::ck_socket::ck_socket_type type, const cppkit::ck_string& serverIP, int port = 554 );
+    CK_API virtual ~rtsp_server() throw();
 
     CK_API void attach_session_prototype( std::shared_ptr<session_base> session );
 
@@ -68,8 +68,8 @@ public:
     CK_API void check_inactive_sessions();
 
 private:
-    river_server( const river_server& obj ) = delete;
-    river_server& operator = ( const river_server& obj ) = delete;
+    rtsp_server( const rtsp_server& obj ) = delete;
+    rtsp_server& operator = ( const rtsp_server& obj ) = delete;
 
     void* _entry_point();
 
