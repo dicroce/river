@@ -61,8 +61,6 @@ public:
 
     CK_API std::shared_ptr<server_response> route_request( std::shared_ptr<server_request> request );
 
-    CK_API std::map<std::string, std::shared_ptr<session_base> > get_sessions();
-
     CK_API static cppkit::ck_string get_next_session_id();
 
     CK_API void stop_session( cppkit::ck_string id );

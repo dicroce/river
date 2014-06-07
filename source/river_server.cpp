@@ -293,12 +293,6 @@ shared_ptr<server_response> river_server::_handle_describe( shared_ptr<server_re
     return response;
 }
 
-map<string, shared_ptr<session_base> > river_server::get_sessions()
-{
-    unique_lock<recursive_mutex> guard( _sessionsLock );
-    return _sessions;
-}
-
 void river_server::_handle_setup( shared_ptr<server_request> request )
 {
     ck_string sessionHeader;

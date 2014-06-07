@@ -62,8 +62,8 @@ public:
     CK_API bool receive_interleaved_packet( uint8_t& channel, std::shared_ptr<cppkit::ck_memory> buffer );
 
 private:
-    client_connection( const client_connection& rhs );
-    client_connection& operator = ( const client_connection& rhs );
+    client_connection( const client_connection& rhs ) = delete;
+    client_connection& operator = ( const client_connection& rhs ) = delete;
 
     cppkit::ck_string _serverIP;
     int _serverPort;

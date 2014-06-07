@@ -72,8 +72,8 @@ protected:
     uint64_t _sessionTimeOutSeconds;
 
 private:
-    session_base( const session_base& obj );
-    session_base& operator = ( const session_base& obj );
+    session_base( const session_base& obj ) = delete;
+    session_base& operator = ( const session_base& obj ) = delete;
 };
 
 }

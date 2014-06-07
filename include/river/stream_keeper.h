@@ -51,8 +51,8 @@ public:
     CK_API void stop();
 
 private:
-    stream_keeper( const stream_keeper& obj );
-    stream_keeper& operator = ( const stream_keeper& obj );
+    stream_keeper( const stream_keeper& obj ) = delete;
+    stream_keeper& operator = ( const stream_keeper& obj ) = delete;
 
     void _entry_point();
 

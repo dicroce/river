@@ -60,8 +60,8 @@ public:
     CK_API cppkit::ck_string get_session_id() const { return _sessionID; }
 
 private:
-    server_connection( const server_connection& obj );
-    server_connection& operator = ( const server_connection& obj );
+    server_connection( const server_connection& obj ) = delete;
+    server_connection& operator = ( const server_connection& obj ) = delete;
 
     void _entry_point();
 
