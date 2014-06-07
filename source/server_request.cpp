@@ -126,7 +126,6 @@ ck_string server_request::get_resource() const
 
 void server_request::set_peer_ip( const cppkit::ck_string& peerIP )
 {
-    CK_LOG_TRACE("[server_request] Setting peer ip(%s)",peerIP.c_str());
     _peerIP = peerIP;
 }
 
@@ -137,7 +136,6 @@ ck_string server_request::get_peer_ip() const
 
 void server_request::set_local_ip( const cppkit::ck_string& localIP )
 {
-    CK_LOG_TRACE("[server_request] Setting local ip(%s)",localIP.c_str());
     _localIP = localIP;
 }
 
@@ -237,7 +235,6 @@ void server_request::read_request( std::shared_ptr<cppkit::ck_stream_io> sok )
 
     /// Now, populate our header hash...
     _parse_initial_line(_initialLine);
-    CK_LOG_INFO("[river::server_request] Read: %s",temp.replace_all("\r","\'\\r\'").replace_all("\n","\'\\n\'").replace_all("\t","\'\\t\'").c_str());
 }
 
 void server_request::_parse_additional_lines( const ck_string& str )

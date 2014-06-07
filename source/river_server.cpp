@@ -110,6 +110,7 @@ void river_server::stop_session( ck_string id )
 {
     {
         unique_lock<recursive_mutex> guard( _sessionsLock );
+
         auto found = _sessions.find( id );
         if( found != _sessions.end() )
             _sessions.erase( found );
@@ -117,6 +118,7 @@ void river_server::stop_session( ck_string id )
 
     {
         unique_lock<recursive_mutex> guard( _connectionsLock );
+
         _connections.erase( remove_if( _connections.begin(),
                                        _connections.end(),
                                        [&](shared_ptr<server_connection> i)->bool{ return (i->get_session_id() == id); } ),
@@ -124,16 +126,24 @@ void river_server::stop_session( ck_string id )
     }
 }
 
-void river_server::stop_all_sessions()
+void river_server::check_inactive_sessions()
 {
-    {
-        unique_lock<recursive_mutex> guard( _sessionsLock );
-        _sessions.clear();
-    }
+    unique_lock<recursive_mutex> guard( _sessionsLock );
 
+    for( auto i : _sessions )
     {
-        unique_lock<recursive_mutex> guard( _connectionsLock );
-        _connections.clear();
+        if( i.second->get_timeout_interval_seconds() == 0 )
+            continue;
+
+        chrono::steady_clock::time_point then = i.second->get_last_keep_alive_time();
+        chrono::steady_clock::time_point now = chrono::steady_clock::now();
+
+        int deltaSeconds = chrono::duration_cast<std::chrono::seconds>( now - then ).count();
+
+        if( deltaSeconds < i.second->get_timeout_interval_seconds() )
+            continue;
+
+        stop_session( i.second->get_session_id() );
     }
 }
 
@@ -200,7 +210,6 @@ void* river_server::_entry_point()
 
 shared_ptr<server_response> river_server::route_request( shared_ptr<server_request> request )
 {
-    CK_LOG_TRACE("[river_server] RouteRequest");
     method m = request->get_method();
 
     if( m == M_OPTIONS )
@@ -244,13 +253,6 @@ shared_ptr<server_response> river_server::route_request( shared_ptr<server_reque
     return response;
 }
 
-bool river_server::is_session_current( const ck_string& sessionID )
-{
-    unique_lock<recursive_mutex> guard( _sessionsLock );
-    auto found = _sessions.find( sessionID );
-    return found != _sessions.end();
-}
-
 ck_string river_server::get_next_session_id()
 {
     unique_lock<recursive_mutex> guard( _session_id_lock );
@@ -264,8 +266,6 @@ ck_string river_server::get_next_session_id()
 
 shared_ptr<server_response> river_server::_handle_options( shared_ptr<server_request> request )
 {
-    CK_LOG_TRACE("[river_server] Handling a options inquiry");
-
     shared_ptr<session_base> session = _locate_session_prototype(request->get_resource_path().strip());
 
     shared_ptr<server_response> response = make_shared<server_response>();
@@ -277,7 +277,6 @@ shared_ptr<server_response> river_server::_handle_options( shared_ptr<server_req
 
 shared_ptr<server_response> river_server::_handle_describe( shared_ptr<server_request> request )
 {
-    CK_LOG_TRACE("[river_server] Handling a describe request");
     ck_string presentation = request->get_resource_path().strip();
 
     shared_ptr<session_base> prototype = _locate_session_prototype( presentation );
