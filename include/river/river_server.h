@@ -71,8 +71,8 @@ public:
     CK_API void stop_all_sessions();
 
 private:
-    river_server( const river_server& obj );
-    river_server& operator = ( const river_server& obj );
+    river_server( const river_server& obj ) = delete;
+    river_server& operator = ( const river_server& obj ) = delete;
 
     void* _entry_point();
 

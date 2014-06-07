@@ -117,19 +117,10 @@ void river_server::stop_session( ck_string id )
 
     {
         unique_lock<recursive_mutex> guard( _connectionsLock );
-#if 1
-        for( auto iter = _connections.begin(), end = _connections.end(); iter != end; )
-        {
-            if( (*iter)->get_session_id() == id )
-                iter = _connections.erase( iter );
-            else ++iter;
-        }
-#else
         _connections.erase( remove_if( _connections.begin(),
                                        _connections.end(),
                                        [&](shared_ptr<server_connection> i)->bool{ return (i->get_session_id() == id); } ),
                             _connections.end() );
-#endif
     }
 }
 
@@ -192,21 +183,10 @@ void* river_server::_entry_point()
 
             {
                 unique_lock<recursive_mutex> guard( _connectionsLock );
-#if 1
-                for( auto iter = _connections.begin(), end = _connections.end(); iter != end; )
-                {
-                    if( !(*iter)->running() )
-                    {
-                        iter = _connections.erase( iter );
-                    }
-                    else ++iter;
-                }
-#else
                 _connections.erase( remove_if( _connections.begin(),
                                                _connections.end(),
                                                [](shared_ptr<server_connection> i)->bool{ return !i->running(); } ),
                                     _connections.end() );
-#endif
             }
         }
         catch( std::exception& ex )
@@ -302,11 +282,6 @@ shared_ptr<server_response> river_server::_handle_describe( shared_ptr<server_re
 
     shared_ptr<session_base> prototype = _locate_session_prototype( presentation );
 
-    //JIRA: MPF-1516
-    //Create a separate prototype type from session_base which
-    //will serve as a factory for sessions as well as handling options and describe.
-    //This distinction makes it easier for a user of Streamy to distinguish
-    //stateless prototypes from stateful sessions.
     shared_ptr<session_base> session = prototype->clone();
     shared_ptr<server_response> response = session->handle_request( request );
 
@@ -349,19 +324,11 @@ void river_server::_handle_setup( shared_ptr<server_request> request )
 shared_ptr<session_base> river_server::_locate_session_prototype( const ck_string& resourcePath )
 {
     unique_lock<recursive_mutex> guard( _prototypesLock );
-#if 1
-    for( auto i = _sessionPrototypes.begin(), end = _sessionPrototypes.end(); i != end; i++ )
-    {
-        if( (*i)->handles_this_presentation( resourcePath ) )
-            return *i;
-    }
-#else
     for( auto i : _sessionPrototypes )
     {
         if( i->handles_this_presentation( resourcePath ) )
             return i;
     }
-#endif
 
     CK_STHROW( river_exception, ( "Suitable connection prototype for this presentation not found." ) );
 }
