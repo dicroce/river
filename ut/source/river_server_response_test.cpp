@@ -46,7 +46,8 @@ void river_server_response_test::test_assignment_op()
     ck_string value;
     UT_ASSERT( resB.get_header( "word", value ) );
     UT_ASSERT( value == "up" );
-    UT_ASSERT( resB.get_body_as_string() == "this is a body" );
+    ck_string responseBody = resB.get_body_as_string();
+    UT_ASSERT( responseBody == "this is a body" );
 }
 
 void river_server_response_test::test_set_status()

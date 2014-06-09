@@ -35,9 +35,9 @@ void river_client_connection_test::test_connect()
     auto fut = std::async(std::launch::async, [&](){
         client_connection cc( "127.0.0.1", port );
         UT_ASSERT( cc.connect() );
-        client_request req( M_OPTIONS );
-        req.set_resource_path( "/foo/bar" );
-        cc.send_request( req );
+        shared_ptr<client_request> req = make_shared<client_request>( M_OPTIONS );
+        req->set_resource_path( "/foo/bar" );
+        cc.write_request( req );
     });
 
     ck_socket server_sok;

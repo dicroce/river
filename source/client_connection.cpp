@@ -59,24 +59,35 @@ void client_connection::disconnect()
     _sok->close();
 }
 
-void client_connection::send_request( client_request& request )
+void client_connection::write_request( shared_ptr<client_request> request )
 {
     _sequence++;
 
-    request.set_server_ip( _serverIP );
-    request.set_server_port( _serverPort );
+    request->set_server_ip( _serverIP );
+    request->set_server_port( _serverPort );
 
-    request.set_header( "CSeq", ck_string::from_int( _sequence ) );
+    request->set_header( "CSeq", ck_string::from_int( _sequence ) );
 
     if( _sessionID.length() > 0 )
-        request.set_header( "Session", _sessionID );
+        request->set_header( "Session", _sessionID );
 
-    request.write_request( _sok );
+    request->write_request( _sok );
 }
 
-void client_connection::receive_request( client_response& response )
+shared_ptr<client_response> client_connection::read_response()
 {
-    CK_THROW(("Not implemented yet!"));
+    shared_ptr<client_response> response = make_shared<client_response>();
+
+    response->read_response( _sok );
+
+    ck_string value;
+    if( response->get_header( "Session", value ) )
+    {
+        if( _sessionID.empty() )
+            _sessionID = value.substr( 0, value.find(';') ); // If no ';' found, entire string is taken.
+    }
+
+    return response;
 }
 
 cppkit::ck_string client_connection::get_session_id() const

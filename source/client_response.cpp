@@ -147,7 +147,9 @@ void client_response::read_response( shared_ptr<ck_stream_io> sok )
 
         }while(!messageEnd);
 
-        if ( (bodySize = _parse_lines( lines )) > 0 )
+        bodySize = _parse_lines( lines );
+
+        if ( bodySize > 0 )
             _receive_body(sok, bodySize);
 
     }while(_statusCode == S_CONTINUE);

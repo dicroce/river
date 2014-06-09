@@ -72,7 +72,7 @@ public:
 
     CK_API uint64_t get_timeout_interval_seconds() const { return _sessionTimeOutSeconds; }
 
-    CK_API virtual cppkit::ck_string get_supported_options() { return "OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN"; }
+    CK_API virtual cppkit::ck_string get_supported_options() { return "OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN, GET_PARAMETER"; }
 
 protected:
     rtsp_server& _server;

@@ -51,9 +51,9 @@ public:
 
     CK_API void set_recv_timeout( int timeoutMillis ) { _recvTimeoutMillis = timeoutMillis; }
 
-    CK_API void send_request( client_request& request );
+    CK_API void write_request( std::shared_ptr<client_request> request );
 
-    CK_API void receive_request( client_response& response );
+    CK_API std::shared_ptr<client_response> read_response();
 
     CK_API cppkit::ck_string get_session_id() const;
 

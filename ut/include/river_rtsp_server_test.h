@@ -10,6 +10,7 @@ public:
     TEST_SUITE(river_rtsp_server_test);
       TEST(river_rtsp_server_test::test_constructor);
       TEST(river_rtsp_server_test::test_start_stop);
+      TEST(river_rtsp_server_test::test_describe);
     TEST_SUITE_END();
 
     virtual ~river_rtsp_server_test() throw() {}
@@ -19,4 +20,5 @@ public:
 
     void test_constructor();
     void test_start_stop();
+    void test_describe();
 };

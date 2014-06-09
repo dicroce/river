@@ -2,8 +2,11 @@
 #include "framework.h"
 #include "river_rtsp_server_test.h"
 #include "river/rtsp_server.h"
+#include "river/client_request.h"
+#include "river/server_request.h"
 #include "river/server_response.h"
 #include "river/client_response.h"
+#include "river/client_connection.h"
 #include "cppkit/os/ck_time_utils.h"
 
 #include <stdio.h>
@@ -28,6 +31,24 @@ public:
     CK_API virtual shared_ptr<server_response> handle_request( shared_ptr<server_request> request )
     {
         shared_ptr<server_response> response = make_shared<server_response>();
+
+        switch( request->get_method() )
+        {
+        case M_DESCRIBE:
+            response->set_body("THIS IS MY SDP");
+            break;
+        case M_SETUP:
+            break;
+        case M_PLAY:
+            break;
+        case M_TEARDOWN:
+            break;
+        case M_GET_PARAM:
+            break;
+        default:
+            break;
+        };
+
         return response;
     }
 private:
@@ -53,5 +74,22 @@ void river_rtsp_server_test::test_start_stop()
     rtsp_server server( ip4_addr_any, port );
     server.attach_session_prototype( make_shared<simple_session>( server ) );
     server.start();
+    server.stop();
+}
+
+void river_rtsp_server_test::test_describe()
+{
+    int port = UT_NEXT_PORT();
+    rtsp_server server( ip4_addr_any, port );
+    server.attach_session_prototype( make_shared<simple_session>( server ) );
+    server.start();
+    shared_ptr<client_request> req = make_shared<client_request>( M_DESCRIBE );
+    req->set_resource_path( "/foo/bar" );
+    client_connection conn( "127.0.0.1", port );
+    conn.connect();
+    conn.write_request( req );
+    shared_ptr<client_response> res = conn.read_response();
+    ck_string sdp = res->get_body_as_string();
+    UT_ASSERT( res->get_body_as_string() == "THIS IS MY SDP" );
     server.stop();
 }

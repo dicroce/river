@@ -100,11 +100,11 @@ void river_client_request_test::test_write_request()
     auto fu = std::async(std::launch::async, [&](){
         client_connection cc( "127.0.0.1", port );
         UT_ASSERT( cc.connect() );
-        client_request req( M_DESCRIBE );
-        req.set_resource_path( "/foo/bar" );
-        req.set_header( "your", "mom" );
-        req.set_user_agent( "lord_stark" );
-        cc.send_request( req );
+        shared_ptr<client_request> req = make_shared<client_request>( M_DESCRIBE );
+        req->set_resource_path( "/foo/bar" );
+        req->set_header( "your", "mom" );
+        req->set_user_agent( "lord_stark" );
+        cc.write_request( req );
     });
 
     ck_socket server_sok;
