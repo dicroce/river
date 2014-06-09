@@ -50,17 +50,17 @@ server_connection::server_connection( rtsp_server* server, shared_ptr<ck_socket>
 server_connection::~server_connection() throw()
 {
     if ( _isStarted )
-        shutdown();
+        stop();
 }
 
-void server_connection::startup()
+void server_connection::start()
 {
     _myrunning = true;
     _thread = std::thread( &server_connection::_entry_point, this );
     _isStarted = true;
 }
 
-void server_connection::shutdown()
+void server_connection::stop()
 {
     _myrunning = false;
     _thread.join();

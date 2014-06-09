@@ -48,8 +48,8 @@ public:
 
     CK_API virtual ~server_connection() throw();
 
-    CK_API void startup();
-    CK_API void shutdown();
+    CK_API void start();
+    CK_API void stop();
 
     CK_API inline std::shared_ptr<cppkit::ck_socket> get_socket() { return _clientSocket; }
 

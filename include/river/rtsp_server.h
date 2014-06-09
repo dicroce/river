@@ -35,12 +35,12 @@
 #include <mutex>
 
 #include "cppkit/ck_socket.h"
+#include "cppkit/ck_timer.h"
 
 #include "river/session_base.h"
 #include "river/server_request.h"
 #include "river/server_response.h"
 #include "river/server_connection.h"
-#include "river/stream_keeper.h"
 
 #include <list>
 
@@ -56,8 +56,8 @@ public:
 
     CK_API void attach_session_prototype( std::shared_ptr<session_base> session );
 
-    CK_API void startup();
-    CK_API void shutdown();
+    CK_API void start();
+    CK_API void stop();
 
     CK_API std::shared_ptr<server_response> route_request( std::shared_ptr<server_request> request );
 
@@ -88,9 +88,9 @@ private:
     std::shared_ptr<cppkit::ck_socket> _serverSocket;
     cppkit::ck_string _serverIP;
     std::recursive_mutex _sessionsLock;
-    std::shared_ptr<stream_keeper> _keepAliveTimer;
     std::recursive_mutex _connectionsLock;
     std::recursive_mutex _prototypesLock;
+    cppkit::ck_timer _aliveCheck;
 
     static uint32_t _next_session_id;
     static std::recursive_mutex _session_id_lock;

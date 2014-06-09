@@ -50,12 +50,10 @@ rtsp_server::rtsp_server( const ck_string& serverIP, int port ) :
     _serverSocket( make_shared<ck_socket>() ),
     _serverIP( serverIP ),
     _sessionsLock(),
-    _keepAliveTimer(),
     _connectionsLock(),
-    _prototypesLock()
+    _prototypesLock(),
+    _aliveCheck( 1000, std::bind( &rtsp_server::check_inactive_sessions, this ) )
 {
-    _keepAliveTimer = make_shared<stream_keeper>( *this );
-
     _serverSocket->bind( _port, _serverIP );
     _serverSocket->listen();
 }
@@ -70,12 +68,10 @@ rtsp_server::rtsp_server( ck_socket::ck_socket_type type, const ck_string& serve
     _serverSocket( make_shared<ck_socket>( type ) ),
     _serverIP( serverIP ),
     _sessionsLock(),
-    _keepAliveTimer(),
     _connectionsLock(),
-    _prototypesLock()
+    _prototypesLock(),
+    _aliveCheck( 1000, std::bind( &rtsp_server::check_inactive_sessions, this ) )
 {
-    _keepAliveTimer = make_shared<stream_keeper>( *this );
-
     _serverSocket->bind( _port, _serverIP );
     _serverSocket->listen();
 }
@@ -83,7 +79,7 @@ rtsp_server::rtsp_server( ck_socket::ck_socket_type type, const ck_string& serve
 rtsp_server::~rtsp_server() throw()
 {
     if( _running )
-        shutdown();
+        stop();
 }
 
 void rtsp_server::attach_session_prototype( shared_ptr<session_base> session )
@@ -93,7 +89,7 @@ void rtsp_server::attach_session_prototype( shared_ptr<session_base> session )
     _sessionPrototypes.push_back( session );
 }
 
-void rtsp_server::startup()
+void rtsp_server::start()
 {
     {
         unique_lock<recursive_mutex> guard( _prototypesLock );
@@ -103,7 +99,7 @@ void rtsp_server::startup()
 
    _thread = std::thread( &rtsp_server::_entry_point, this );
 
-    _keepAliveTimer->start();
+   _aliveCheck.start();
 }
 
 void rtsp_server::stop_session( ck_string id )
@@ -147,7 +143,7 @@ void rtsp_server::check_inactive_sessions()
     }
 }
 
-void rtsp_server::shutdown()
+void rtsp_server::stop()
 {
     _running = false;
 
@@ -155,7 +151,7 @@ void rtsp_server::shutdown()
         _serverSocket->close();
 
     _thread.join();
-    _keepAliveTimer->stop();
+    _aliveCheck.stop();
 
     {
         // This joins ALL our ServerConnection threads.
@@ -187,7 +183,7 @@ void* rtsp_server::_entry_point()
 
                     _connections.push_back( serverConnection );
 
-                    serverConnection->startup();
+                    serverConnection->start();
                 }
             }
 
