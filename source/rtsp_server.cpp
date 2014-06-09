@@ -168,7 +168,7 @@ void* rtsp_server::_entry_point()
     {
         try
         {
-            int32_t timeoutMillis = 5000;
+            int32_t timeoutMillis = 250;
             bool timedOut = _serverSocket->wait_recv( timeoutMillis );
 
             if( !_running )

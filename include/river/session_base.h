@@ -40,14 +40,23 @@
 namespace river
 {
 
-class river_server;
+class rtsp_server;
 
 class session_base
 {
 public:
-    CK_API session_base( river_server& server );
-    CK_API session_base( river_server& server, uint64_t sessionTimeOutSeconds );
-    CK_API virtual ~session_base() throw();
+    CK_API session_base( rtsp_server& server ) :
+        _server( server )
+    {
+    }
+
+    CK_API session_base( rtsp_server& server, uint64_t sessionTimeOutSeconds ) :
+        _server( server ),
+        _sessionTimeOutSeconds( sessionTimeOutSeconds )
+    {
+    }
+
+    CK_API virtual ~session_base() throw() {}
 
     CK_API virtual std::shared_ptr<session_base> clone() const = 0;
 
@@ -66,7 +75,7 @@ public:
     CK_API virtual cppkit::ck_string get_supported_options() { return "OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN"; }
 
 protected:
-    river_server& _server;
+    rtsp_server& _server;
     cppkit::ck_string _sessionId;
     std::chrono::steady_clock::time_point _lastKeepAliveTime;
     uint64_t _sessionTimeOutSeconds;
