@@ -36,7 +36,7 @@ void river_client_connection_test::test_connect()
         client_connection cc( "127.0.0.1", port );
         UT_ASSERT( cc.connect() );
         shared_ptr<client_request> req = make_shared<client_request>( M_OPTIONS );
-        req->set_resource_path( "/foo/bar" );
+        req->set_uri( "/foo/bar" );
         cc.write_request( req );
     });
 
@@ -47,7 +47,7 @@ void river_client_connection_test::test_connect()
     server_request sreq;
     sreq.read_request( connected );
 
-    UT_ASSERT( sreq.get_resource_path() == "/foo/bar" );
+    UT_ASSERT( sreq.get_uri() == "/foo/bar" );
 
     fut.get();
 }

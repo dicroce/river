@@ -94,34 +94,22 @@ method server_request::get_method() const
     CK_STHROW( rtsp_400_exception, ( "Unknown method." ));
 }
 
-ck_string server_request::get_uri() const
+ck_string server_request::get_url() const
 {
-    auto found = _headerParts.find( "uri" );
+    auto found = _headerParts.find( "url" );
     if( found != _headerParts.end() )
         return found->second;
 
     CK_STHROW( rtsp_400_exception, ( "URI not found." ));
 }
 
-ck_string server_request::get_resource_path() const
+ck_string server_request::get_uri() const
 {
-    auto found = _headerParts.find( "resource_path" );
+    auto found = _headerParts.find( "uri" );
     if( found != _headerParts.end() )
         return found->second;
 
     CK_STHROW( rtsp_400_exception, ( "resource path not found." ));
-}
-
-ck_string server_request::get_resource() const
-{
-    ck_string resourcePath = get_resource_path();
-
-    size_t rightSlash = resourcePath.rfind( '/' );
-
-    if( (rightSlash != string::npos) && ((resourcePath.length()-(rightSlash+1)) > 0) )
-        return resourcePath.substr( rightSlash+1, (resourcePath.length()-(rightSlash+1)) );
-
-    return resourcePath;
 }
 
 void server_request::set_peer_ip( const cppkit::ck_string& peerIP )
@@ -251,7 +239,6 @@ void server_request::_parse_additional_lines( const ck_string& str )
 
 void server_request::_parse_initial_line( ck_string& str )
 {
-    static const ck_string protocolString("://");
     _headerParts.clear();
 
     const vector<ck_string> initialLineParts = str.split(' ');
@@ -262,7 +249,9 @@ void server_request::_parse_initial_line( ck_string& str )
     }
 
     _headerParts.insert( std::make_pair( "method", initialLineParts[0] ) );
-    _headerParts.insert( std::make_pair( "uri", initialLineParts[1] ) );
+    _headerParts.insert( std::make_pair( "url", initialLineParts[1] ) );
+
+    static const ck_string protocolString("://");
 
     size_t index = initialLineParts[1].find(protocolString);
     if ( index == std::string::npos )
@@ -271,8 +260,8 @@ void server_request::_parse_initial_line( ck_string& str )
     index = initialLineParts[1].find("/",index+protocolString.length());
 
     if ( index != string::npos && index+1 < initialLineParts[1].length() )
-        _headerParts.insert( make_pair( "resource_path", initialLineParts[1].substr(index+1) ) );
-    else _headerParts.insert( make_pair( "resource_path", ck_string("/") ) );
+        _headerParts.insert( make_pair( "uri", initialLineParts[1].substr(index) ) );
+    else _headerParts.insert( make_pair( "uri", ck_string("/") ) );
 
     _headerParts.insert( make_pair( "rtsp_version", initialLineParts[2] ) );
 

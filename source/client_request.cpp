@@ -40,7 +40,7 @@ client_request::client_request( method m ) :
     _additionalHeaders(),
     _serverIP(),
     _serverPort(),
-    _resourcePath()
+    _uri()
 {
 }
 
@@ -50,7 +50,7 @@ client_request::client_request( const client_request& rhs ) :
     _additionalHeaders( rhs._additionalHeaders ),
     _serverIP( rhs._serverIP ),
     _serverPort( rhs._serverPort ),
-    _resourcePath( rhs._resourcePath )
+    _uri( rhs._uri )
 {
 }
 
@@ -60,7 +60,7 @@ client_request::client_request( client_request&& rhs ) noexcept :
     _additionalHeaders( std::move( rhs._additionalHeaders ) ),
     _serverIP( std::move( rhs._serverIP ) ),
     _serverPort( std::move( rhs._serverPort ) ),
-    _resourcePath( std::move( rhs._resourcePath ) )
+    _uri( std::move( rhs._uri ) )
 {
 }
 
@@ -75,7 +75,7 @@ client_request& client_request::operator = ( const client_request& rhs )
     _additionalHeaders = rhs._additionalHeaders;
     _serverIP = rhs._serverIP;
     _serverPort = rhs._serverPort;
-    _resourcePath = rhs._resourcePath;
+    _uri = rhs._uri;
 
     return *this;
 }
@@ -87,7 +87,7 @@ client_request& client_request::operator = ( client_request&& rhs ) noexcept
     _additionalHeaders = std::move( rhs._additionalHeaders );
     _serverIP = std::move( rhs._serverIP );
     _serverPort = std::move( rhs._serverPort );
-    _resourcePath = std::move( rhs._resourcePath );
+    _uri = std::move( rhs._uri );
 
     return *this;
 }
@@ -150,14 +150,19 @@ int client_request::get_server_port() const
     return _serverPort;
 }
 
-void client_request::set_resource_path( const ck_string& resourcePath )
+void client_request::set_uri( const ck_string& uri )
 {
-    _resourcePath = resourcePath;
+    if( uri.length() == 0 )
+        CK_STHROW( rtsp_400_exception, ( "Invalid URI set on client_request." ) );
+
+    if( uri.starts_with( "/" ) )
+        _uri = uri.substr( 1 );
+    else _uri = uri;
 }
 
-ck_string client_request::get_resource_path() const
+ck_string client_request::get_uri() const
 {
-    return _resourcePath;
+    return ck_string::format( "/%s", _uri.c_str() );
 }
 
 void client_request::write_request( shared_ptr<ck_stream_io> sok )
@@ -165,7 +170,7 @@ void client_request::write_request( shared_ptr<ck_stream_io> sok )
     ck_string rtspURL = ck_string::format( "rtsp://%s:%d/%s",
                                            _serverIP.c_str(),
                                            _serverPort,
-                                           _resourcePath.c_str() );
+                                           _uri.c_str() );
 
     if( _method < M_OPTIONS || _method > M_REDIRECT )
         CK_STHROW( rtsp_400_exception, ( "method not recognized." ));

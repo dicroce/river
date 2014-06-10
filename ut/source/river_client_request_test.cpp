@@ -48,11 +48,11 @@ void river_client_request_test::test_constructor()
 void river_client_request_test::test_assignment_op()
 {
     client_request reqA;
-    reqA.set_resource_path("/foo/bar");
+    reqA.set_uri("/foo/bar");
     reqA.set_header( "word", "up" );
     client_request reqB;
     reqB = reqA;
-    UT_ASSERT( reqB.get_resource_path() == "/foo/bar" );
+    UT_ASSERT( reqB.get_uri() == "/foo/bar" );
     ck_string value;
     UT_ASSERT( reqB.get_header( "word", value ) );
     UT_ASSERT( value == "up" );
@@ -101,7 +101,7 @@ void river_client_request_test::test_write_request()
         client_connection cc( "127.0.0.1", port );
         UT_ASSERT( cc.connect() );
         shared_ptr<client_request> req = make_shared<client_request>( M_DESCRIBE );
-        req->set_resource_path( "/foo/bar" );
+        req->set_uri( "/foo/bar" );
         req->set_header( "your", "mom" );
         req->set_user_agent( "lord_stark" );
         cc.write_request( req );
@@ -115,7 +115,7 @@ void river_client_request_test::test_write_request()
     sreq.read_request( connected );
 
     UT_ASSERT( sreq.get_method() == M_DESCRIBE );
-    UT_ASSERT( sreq.get_resource_path() == "/foo/bar" );
+    UT_ASSERT( sreq.get_uri() == "/foo/bar" );
     ck_string value;
     UT_ASSERT( sreq.get_header( "your", value ) );
     UT_ASSERT( value == "mom" );

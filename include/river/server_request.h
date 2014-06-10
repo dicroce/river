@@ -56,11 +56,8 @@ public:
 
     CK_API method get_method() const;
 
+    CK_API cppkit::ck_string get_url() const;
     CK_API cppkit::ck_string get_uri() const;
-
-    CK_API cppkit::ck_string get_resource_path() const;
-
-    CK_API cppkit::ck_string get_resource() const;
 
     CK_API void set_peer_ip( const cppkit::ck_string& peerIP );
     CK_API cppkit::ck_string get_peer_ip() const;

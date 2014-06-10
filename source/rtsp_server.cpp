@@ -91,6 +91,8 @@ void rtsp_server::attach_session_prototype( shared_ptr<session_base> session )
 
 void rtsp_server::start()
 {
+    _running = true;
+
     {
         unique_lock<recursive_mutex> guard( _prototypesLock );
         if( _sessionPrototypes.empty() )
@@ -162,14 +164,15 @@ void rtsp_server::stop()
 
 void* rtsp_server::_entry_point()
 {
-    _running = true;
-
     while( _running )
     {
         try
         {
             int32_t timeoutMillis = 250;
             bool timedOut = _serverSocket->wait_recv( timeoutMillis );
+
+            if( !_serverSocket->valid() )
+                _running = false;
 
             if( !_running )
                 continue;
@@ -262,7 +265,7 @@ ck_string rtsp_server::get_next_session_id()
 
 shared_ptr<server_response> rtsp_server::_handle_options( shared_ptr<server_request> request )
 {
-    shared_ptr<session_base> session = _locate_session_prototype(request->get_resource_path().strip());
+    shared_ptr<session_base> session = _locate_session_prototype(request->get_uri().strip());
 
     shared_ptr<server_response> response = make_shared<server_response>();
 
@@ -273,7 +276,7 @@ shared_ptr<server_response> rtsp_server::_handle_options( shared_ptr<server_requ
 
 shared_ptr<server_response> rtsp_server::_handle_describe( shared_ptr<server_request> request )
 {
-    ck_string presentation = request->get_resource_path().strip();
+    ck_string presentation = request->get_uri().strip();
 
     shared_ptr<session_base> prototype = _locate_session_prototype( presentation );
 
@@ -295,7 +298,7 @@ void rtsp_server::_handle_setup( shared_ptr<server_request> request )
     if( !request->get_header( "Session", sessionHeader ) )
         CK_STHROW( river_exception, ( "Session header not found." ));
 
-    ck_string presentation = request->get_resource_path().strip();
+    ck_string presentation = request->get_uri().strip();
 
     shared_ptr<session_base> prototype = _locate_session_prototype( presentation );
 

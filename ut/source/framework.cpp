@@ -36,12 +36,17 @@ void ut_usleep(unsigned int usec)
 
 // This is a globally (across test) incrementing counter so that tests can avoid having hardcoded port
 // numbers but can avoid stepping on eachothers ports.
-int _next_port = 5000;
+int _next_port = 42;
 
 int ut_next_port()
 {
+    if( _next_port == 42 )
+        _next_port = 5000 + (random() % 1000);
+
     int ret = _next_port;
+
     _next_port++;
+
     return ret;
 }
 

@@ -68,8 +68,8 @@ public:
     CK_API void set_server_port( int port );
     CK_API int get_server_port() const;
 
-    CK_API void set_resource_path( const cppkit::ck_string& resourcePath );
-    CK_API cppkit::ck_string get_resource_path() const;
+    CK_API void set_uri( const cppkit::ck_string& uri );
+    CK_API cppkit::ck_string get_uri() const;
 
     CK_API void write_request( std::shared_ptr<cppkit::ck_stream_io> sok );
 
@@ -79,7 +79,7 @@ private:
     std::map<std::string, cppkit::ck_string> _additionalHeaders;
     cppkit::ck_string _serverIP;
     int _serverPort;
-    cppkit::ck_string _resourcePath;
+    cppkit::ck_string _uri;
 };
 
 }

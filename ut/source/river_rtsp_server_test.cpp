@@ -28,6 +28,7 @@ public:
     CK_API virtual ~simple_session() throw() {}
     CK_API virtual shared_ptr<session_base> clone() const { return make_shared<simple_session>( _server ); }
     CK_API virtual bool handles_this_presentation( const ck_string& presentation ) { return presentation.contains( "/foo/bar" ); }
+    CK_API virtual ck_string get_supported_options() { return "OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN"; }
     CK_API virtual shared_ptr<server_response> handle_request( shared_ptr<server_request> request )
     {
         shared_ptr<server_response> response = make_shared<server_response>();
@@ -65,31 +66,54 @@ void river_rtsp_server_test::teardown()
 void river_rtsp_server_test::test_constructor()
 {
     int port = UT_NEXT_PORT();
+
     rtsp_server server( ip4_addr_any, port );
 }
 
 void river_rtsp_server_test::test_start_stop()
 {
     int port = UT_NEXT_PORT();
+
     rtsp_server server( ip4_addr_any, port );
     server.attach_session_prototype( make_shared<simple_session>( server ) );
     server.start();
     server.stop();
 }
 
-void river_rtsp_server_test::test_describe()
+void river_rtsp_server_test::test_options()
 {
     int port = UT_NEXT_PORT();
+
     rtsp_server server( ip4_addr_any, port );
     server.attach_session_prototype( make_shared<simple_session>( server ) );
     server.start();
-    shared_ptr<client_request> req = make_shared<client_request>( M_DESCRIBE );
-    req->set_resource_path( "/foo/bar" );
+    shared_ptr<client_request> req = make_shared<client_request>( M_OPTIONS );
+    req->set_uri( "/foo/bar" );
     client_connection conn( "127.0.0.1", port );
     conn.connect();
     conn.write_request( req );
     shared_ptr<client_response> res = conn.read_response();
-    ck_string sdp = res->get_body_as_string();
+    ck_string value;
+    UT_ASSERT( res->get_header( "Public", value ) );
+    UT_ASSERT( value == "OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN" );
+    UT_ASSERT( res->get_status() == S_OK );
+    server.stop();
+}
+
+void river_rtsp_server_test::test_describe()
+{
+    int port = UT_NEXT_PORT();
+
+    rtsp_server server( ip4_addr_any, port );
+    server.attach_session_prototype( make_shared<simple_session>( server ) );
+    server.start();
+    shared_ptr<client_request> req = make_shared<client_request>( M_DESCRIBE );
+    req->set_uri( "/foo/bar" );
+    client_connection conn( "127.0.0.1", port );
+    conn.connect();
+    conn.write_request( req );
+    shared_ptr<client_response> res = conn.read_response();
     UT_ASSERT( res->get_body_as_string() == "THIS IS MY SDP" );
+    UT_ASSERT( res->get_status() == S_OK );
     server.stop();
 }
