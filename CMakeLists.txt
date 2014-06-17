@@ -10,7 +10,8 @@ set(SOURCES source/river_exception.cpp
             source/client_response.cpp
             source/server_request.cpp
             source/server_response.cpp
-            source/rtsp_server.cpp)
+            source/rtsp_server.cpp
+            source/rtp.cpp)
 
 set(COMMON_LIBS cppkit)
 
