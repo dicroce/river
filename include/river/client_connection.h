@@ -46,7 +46,7 @@ public:
     CK_API client_connection( const cppkit::ck_string& serverIP, int port );
     CK_API virtual ~client_connection() throw();
 
-    CK_API bool connect( int timeoutMillis = 3000 );
+    CK_API bool connect( int timeoutMillis = 5000 );
     CK_API void disconnect();
 
     CK_API void set_recv_timeout( int timeoutMillis ) { _recvTimeoutMillis = timeoutMillis; }
