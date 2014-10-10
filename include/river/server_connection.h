@@ -44,7 +44,7 @@ class server_connection
 {
 public:
     CK_API server_connection( rtsp_server* server,
-                              std::shared_ptr<cppkit::ck_socket> clientSocket = new cppkit::ck_socket );
+                              std::shared_ptr<cppkit::ck_socket> clientSocket = std::make_shared<cppkit::ck_socket>() );
 
     CK_API virtual ~server_connection() throw();
 

@@ -15,4 +15,5 @@ set(SOURCES source/river_exception.cpp
 
 set(COMMON_LIBS cppkit)
 
+include(common.cmake NO_POLICY_SCOPE)
 include(../devel_artifacts/build/base_lib.cmake NO_POLICY_SCOPE)
