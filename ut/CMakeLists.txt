@@ -11,4 +11,5 @@ set(SOURCES source/framework.cpp
 set(COMMON_LIBS cppkit river)
 set(WINDOWS_LIBS DbgHelp ws2_32 iphlpapi)
 
+include(common.cmake NO_POLICY_SCOPE)
 include(../../devel_artifacts/build/base_ut.cmake)
