@@ -36,7 +36,7 @@ using namespace cppkit;
 using namespace std;
 
 server_response::server_response() :
-    _status( S_OK ),
+    _status( STATUS_OK ),
     _headers(),
     _body( new ck_memory )
 {
@@ -140,7 +140,7 @@ void server_response::write_response( shared_ptr<ck_stream_io> sok )
     // very particular character!
     time_t now = time( 0 );
     char* timeString = ctime( &now );
-    int timeLen = strlen( timeString );
+    size_t timeLen = strlen( timeString );
     timeString[timeLen-1] = 0;
 
     ck_string dateTime = timeString;
@@ -150,7 +150,7 @@ void server_response::write_response( shared_ptr<ck_stream_io> sok )
     for( auto i : _headers )
         messageHeader += ck_string::format( "%s: %s\r\n", i.first.c_str(), i.second.c_str() );
 
-    unsigned int bodySize = _body->size_data();
+    size_t bodySize = _body->size_data();
 
     if( bodySize > 0 )
         messageHeader += ck_string::format( "Content-Length: %d\r\n", bodySize );

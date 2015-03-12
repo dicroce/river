@@ -13,7 +13,7 @@ uint16_t river::rtp_parse_sequence( ck_byte_ptr packet )
 {
     packet += 2;
 
-    uint16_t sequenceNumber = ntohs( *(uint16_t*)packet );
+    uint16_t sequenceNumber = x_ntohs( *(uint16_t*)packet );
 
     return sequenceNumber;
 }
@@ -30,7 +30,7 @@ uint32_t river::rtp_parse_timestamp( ck_byte_ptr packet )
 {
     packet += 4;
 
-    uint32_t ts = ntohl( *(uint32_t*)packet );
+    uint32_t ts = x_ntohl( *(uint32_t*)packet );
 
     return ts;
 }
@@ -55,7 +55,7 @@ ck_byte_ptr river::rtp_parse_payload( ck_byte_ptr packet )
 
     if( extension == 1 )
     {
-        uint32_t extensionSize = (ntohs( *(uint16_t*)packet ) + 1) * 4;
+        uint32_t extensionSize = (x_ntohs( *(uint16_t*)packet ) + 1) * 4;
         packet += extensionSize;
         payloadOffset += extensionSize;
     }

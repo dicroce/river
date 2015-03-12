@@ -118,7 +118,7 @@ void client_response::read_response( shared_ptr<ck_stream_io> sok )
             do
             {
                 char character = 0;
-                recvCount = sok->recv( &character, 1 );
+                recvCount = (int)sok->recv( &character, 1 );
 
                 if( !sok->valid() || (recvCount != 1) )
                     CK_STHROW(river_exception, ("Failed to read or invalid socket."));
@@ -152,7 +152,7 @@ void client_response::read_response( shared_ptr<ck_stream_io> sok )
         if ( bodySize > 0 )
             _receive_body(sok, bodySize);
 
-    }while(_statusCode == S_CONTINUE);
+    }while(_statusCode == STATUS_CONTINUE);
 }
 
 status client_response::get_status() const

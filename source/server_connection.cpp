@@ -130,12 +130,12 @@ void server_connection::_entry_point()
 
                 shared_ptr<server_response> response = _server->route_request( request );
 
-                if( ((response->get_status() < S_OK) || (response->get_status() > S_MULTIPLE_CHOICES)) )
+                if( ((response->get_status() < STATUS_OK) || (response->get_status() > STATUS_MULTIPLE_CHOICES)) )
                     _sessionID.clear();
 
                 response->set_header( "CSeq", sequenceHeader );
 
-                if( _sessionID.length() && ((response->get_status() >= S_OK) && (response->get_status() < S_MULTIPLE_CHOICES)) )
+                if( _sessionID.length() && ((response->get_status() >= STATUS_OK) && (response->get_status() < STATUS_MULTIPLE_CHOICES)) )
                     response->set_header( "Session", _sessionID );
 
                 response->write_response( _clientSocket );
@@ -169,7 +169,7 @@ void server_connection::write_interleaved_packet( uint8_t channel, shared_ptr<cp
     _clientSocket->send( &channel, 1 );
 
     int16_t length = (int16_t)buffer->size_data();
-    int16_t lengthWord = htons( length );
+    int16_t lengthWord = x_htons( length );
 
     _clientSocket->send( &lengthWord, 2 );
 

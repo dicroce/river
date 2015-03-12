@@ -51,6 +51,10 @@ ck_string river::get_method_name( method m )
     return method_names[m];
 }
 
+#ifdef IS_WINDOWS
+#pragma warning( disable : 4715 )
+#endif
+
 method river::get_method( const cppkit::ck_string& methodName )
 {
     if( methodName == "OPTIONS" )
@@ -71,6 +75,6 @@ method river::get_method( const cppkit::ck_string& methodName )
         return M_SET_PARAM;
     else if( methodName == "REDIRECT" )
         return M_REDIRECT;
-
-    throw_rtsp_exception( 400, "Unknown method." );
+	
+	throw_rtsp_exception( 400, "Unknown method." );
 }

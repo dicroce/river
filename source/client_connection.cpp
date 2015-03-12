@@ -140,7 +140,7 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
         if( bytesRead == 0 )
             return false;
 
-        length = ntohs( sizeShort );
+        length = x_ntohs( sizeShort );
 
         //Interleaved appears to use the same RTP packets as UDP - given that,the max packet size of UDP would be 1500 bytes,
         //we really shouldn't see anything greater than 1600

@@ -136,7 +136,7 @@ void rtsp_server::check_inactive_sessions()
         chrono::steady_clock::time_point then = i.second->get_last_keep_alive_time();
         chrono::steady_clock::time_point now = chrono::steady_clock::now();
 
-        int deltaSeconds = chrono::duration_cast<std::chrono::seconds>( now - then ).count();
+        uint64_t deltaSeconds = chrono::duration_cast<std::chrono::seconds>( now - then ).count();
 
         if( deltaSeconds < i.second->get_timeout_interval_seconds() )
             continue;
