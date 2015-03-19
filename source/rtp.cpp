@@ -20,7 +20,7 @@ uint16_t river::rtp_parse_sequence( ck_byte_ptr packet )
 
 bool river::rtp_parse_marker( ck_byte_ptr packet )
 {
-    ck_bitsy bitsy( packet );
+    ck_bitsy<const uint8_t*> bitsy( packet.get_ptr(), packet.get_ptr() + packet.length() );
     bitsy.skip_bits( 8 );
 
     return (bitsy.get_bits( 1 ) > 0) ? true : false;
@@ -37,7 +37,7 @@ uint32_t river::rtp_parse_timestamp( ck_byte_ptr packet )
 
 ck_byte_ptr river::rtp_parse_payload( ck_byte_ptr packet )
 {
-    ck_bitsy bitsy( packet );
+    ck_bitsy<const uint8_t*> bitsy( packet.get_ptr(), packet.get_ptr() + packet.length() );
 
     bitsy.skip_bits( 3 );
     uint32_t extension = bitsy.get_bits( 1 );

@@ -37,12 +37,12 @@ void river_server_response_test::test_constructor()
 void river_server_response_test::test_assignment_op()
 {
     server_response resA;
-    resA.set_status( S_CONTINUE );
+    resA.set_status( STATUS_CONTINUE );
     resA.set_header( "word", "up" );
     resA.set_body( "this is a body" );
     server_response resB;
     resB = resA;
-    UT_ASSERT( resB.get_status() == S_CONTINUE );
+    UT_ASSERT( resB.get_status() == STATUS_CONTINUE );
     ck_string value;
     UT_ASSERT( resB.get_header( "word", value ) );
     UT_ASSERT( value == "up" );
@@ -53,8 +53,8 @@ void river_server_response_test::test_assignment_op()
 void river_server_response_test::test_set_status()
 {
     server_response resA;
-    resA.set_status( S_CONTINUE );
-    UT_ASSERT( resA.get_status() == S_CONTINUE );
+    resA.set_status( STATUS_CONTINUE );
+    UT_ASSERT( resA.get_status() == STATUS_CONTINUE );
 }
 
 void river_server_response_test::test_set_header()

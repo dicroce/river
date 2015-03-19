@@ -96,7 +96,7 @@ void river_rtsp_server_test::test_options()
     ck_string value;
     UT_ASSERT( res->get_header( "Public", value ) );
     UT_ASSERT( value == "OPTIONS, DESCRIBE, SETUP, PLAY, TEARDOWN" );
-    UT_ASSERT( res->get_status() == S_OK );
+    UT_ASSERT( res->get_status() == STATUS_OK );
     server.stop();
 }
 
@@ -114,6 +114,6 @@ void river_rtsp_server_test::test_describe()
     conn.write_request( req );
     shared_ptr<client_response> res = conn.read_response();
     UT_ASSERT( res->get_body_as_string() == "THIS IS MY SDP" );
-    UT_ASSERT( res->get_status() == S_OK );
+    UT_ASSERT( res->get_status() == STATUS_OK );
     server.stop();
 }
