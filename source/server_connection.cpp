@@ -169,7 +169,7 @@ void server_connection::write_interleaved_packet( uint8_t channel, shared_ptr<cp
     _clientSocket->send( &channel, 1 );
 
     int16_t length = (int16_t)buffer->size_data();
-    int16_t lengthWord = x_htons( length );
+    int16_t lengthWord = ck_htons( length );
 
     _clientSocket->send( &lengthWord, 2 );
 
