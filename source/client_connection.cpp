@@ -28,6 +28,7 @@
 /// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=--=-=-=-=-=-
 
 #include "river/client_connection.h"
+#include "cppkit/ck_socket.h"
 
 using namespace river;
 using namespace cppkit;
