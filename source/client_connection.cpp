@@ -115,6 +115,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
 
         size_t bytesRead = _sok->recv( &dollarSign, 1, _recvTimeoutMillis );
 
+        if( !_sok->valid() )
+            return false;
+
         if( bytesRead == 0 )
             return false;
 
@@ -125,6 +128,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
         }
 
         bytesRead = _sok->recv( &channel, 1, _recvTimeoutMillis );
+
+        if( !_sok->valid() )
+            return false;
 
         if( bytesRead == 0 )
             return false;
@@ -137,6 +143,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
 
         uint16_t sizeShort;
         bytesRead = _sok->recv( &sizeShort, 2, _recvTimeoutMillis );
+
+        if( !_sok->valid() )
+            return false;
 
         if( bytesRead == 0 )
             return false;
@@ -152,6 +161,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
         }
 
         bytesRead = _sok->recv( buffer->extend_data( length ).get_ptr(), length, _recvTimeoutMillis );
+
+        if( !_sok->valid() )
+            return false;
 
         if( bytesRead == 0 )
             return false;
