@@ -47,12 +47,12 @@ class server_request
 public:
     CK_API server_request();
     CK_API server_request( const server_request& rhs );
-    CK_API server_request( server_request&& rhs ) noexcept;
+    CK_API server_request( server_request&& rhs ) throw();
 
     CK_API virtual ~server_request() throw();
 
     CK_API server_request& operator = ( const server_request& rhs );
-    CK_API server_request& operator = ( server_request&& rhs ) noexcept;
+    CK_API server_request& operator = ( server_request&& rhs ) throw();
 
     CK_API method get_method() const;
 
@@ -68,7 +68,7 @@ public:
     CK_API bool get_header( const cppkit::ck_string& key, cppkit::ck_string& value ) const;
     CK_API void set_header( const cppkit::ck_string& key, const cppkit::ck_string& value );
 
-    CK_API void read_request( std::shared_ptr<cppkit::ck_stream_io> sok );
+    CK_API void read_request( cppkit::ck_stream_io& sok );
 
 private:
     CK_API void _parse_initial_line( cppkit::ck_string& str );

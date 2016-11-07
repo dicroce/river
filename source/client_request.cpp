@@ -54,7 +54,7 @@ client_request::client_request( const client_request& rhs ) :
 {
 }
 
-client_request::client_request( client_request&& rhs ) noexcept :
+client_request::client_request( client_request&& rhs ) throw() :
     _method( std::move( rhs._method ) ),
     _userAgent( std::move( rhs._userAgent ) ),
     _additionalHeaders( std::move( rhs._additionalHeaders ) ),
@@ -64,7 +64,7 @@ client_request::client_request( client_request&& rhs ) noexcept :
 {
 }
 
-client_request::~client_request() noexcept
+client_request::~client_request() throw()
 {
 }
 
@@ -80,7 +80,7 @@ client_request& client_request::operator = ( const client_request& rhs )
     return *this;
 }
 
-client_request& client_request::operator = ( client_request&& rhs ) noexcept
+client_request& client_request::operator = ( client_request&& rhs ) throw()
 {
     _method = std::move( rhs._method );
     _userAgent = std::move( rhs._userAgent );
@@ -165,7 +165,7 @@ ck_string client_request::get_uri() const
     return ck_string::format( "/%s", _uri.c_str() );
 }
 
-void client_request::write_request( shared_ptr<ck_stream_io> sok )
+void client_request::write_request( ck_stream_io& sok )
 {
     ck_string rtspURL = ck_string::format( "rtsp://%s:%d/%s",
                                            _serverIP.c_str(),
@@ -188,9 +188,9 @@ void client_request::write_request( shared_ptr<ck_stream_io> sok )
 
     message += ck_string::format( "\r\n" );
 
-    ssize_t bytesSent = sok->send( message.c_str(), message.length() );
+    ssize_t bytesSent = sok.send( message.c_str(), message.length() );
 
-    if( !sok->valid() || (bytesSent != (int32_t)message.length()) )
+    if( !sok.valid() || (bytesSent != (int32_t)message.length()) )
         CK_STHROW( rtsp_500_exception, ("I/O error.") );
 }
 

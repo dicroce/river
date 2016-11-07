@@ -52,7 +52,7 @@ server_request::server_request( const server_request& rhs ) :
 {
 }
 
-server_request::server_request( server_request&& rhs ) noexcept :
+server_request::server_request( server_request&& rhs ) throw() :
     _initialLine( std::move( rhs._initialLine ) ),
     _requestLines( std::move( rhs._requestLines ) ),
     _headerParts( std::move( rhs._headerParts ) ),
@@ -71,16 +71,18 @@ server_request& server_request::operator = ( const server_request& rhs )
     _requestLines = rhs._requestLines;
     _headerParts = rhs._headerParts;
     _peerIP = rhs._peerIP;
+    _localIP = rhs._localIP;
 
     return *this;
 }
 
-server_request& server_request::operator = ( server_request&& rhs ) noexcept
+server_request& server_request::operator = ( server_request&& rhs ) throw()
 {
     _initialLine = std::move( rhs._initialLine );
     _requestLines = std::move( rhs._requestLines );
     _headerParts = std::move( rhs._headerParts );
     _peerIP = std::move( rhs._peerIP );
+    _localIP = std::move( rhs._localIP );
 
     return *this;
 }
@@ -149,7 +151,7 @@ void server_request::set_header( const cppkit::ck_string& key, const cppkit::ck_
     _headerParts.insert( std::make_pair( key, value ) );
 }
 
-void server_request::read_request( std::shared_ptr<cppkit::ck_stream_io> sok )
+void server_request::read_request( cppkit::ck_stream_io& sok )
 {
     /// First, read the initial request line...
     ck_string temp = "";
@@ -164,8 +166,8 @@ void server_request::read_request( std::shared_ptr<cppkit::ck_stream_io> sok )
 
     while( !lineDone && ((bytesReadThisLine+1) < MAX_HEADER_LINE) )
     {
-        ssize_t bytesRead = sok->recv( writer, 1 );
-        if( !sok->valid() || (bytesRead != 1) )
+        ssize_t bytesRead = sok.recv( writer, 1 );
+        if( !sok.valid() || (bytesRead != 1) )
             CK_STHROW( rtsp_500_exception, ( "IO error reading request." ));
 
         bytesReadThisLine += 1;
@@ -196,8 +198,8 @@ void server_request::read_request( std::shared_ptr<cppkit::ck_stream_io> sok )
 
         while( !lineDone && ((bytesReadThisLine+1) < MAX_HEADER_LINE) )
         {
-            ssize_t bytesRead = sok->recv( writer, 1 );
-            if( !sok->valid() || (bytesRead != 1) )
+            ssize_t bytesRead = sok.recv( writer, 1 );
+            if( !sok.valid() || (bytesRead != 1) )
                 CK_STHROW( rtsp_500_exception, ( "IO error reading request." ));
 
             bytesReadThisLine += 1;

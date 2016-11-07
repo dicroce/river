@@ -49,7 +49,7 @@ server_response::server_response( const server_response& rhs ) :
 {
 }
 
-server_response::server_response( server_response&& rhs ) noexcept :
+server_response::server_response( server_response&& rhs ) throw() :
     _status( std::move( rhs._status ) ),
     _headers( std::move( rhs._headers ) ),
     _body( std::move( rhs._body ) )
@@ -70,7 +70,7 @@ server_response& server_response::operator = ( const server_response& rhs )
     return *this;
 }
 
-server_response& server_response::operator = ( server_response&& rhs ) noexcept
+server_response& server_response::operator = ( server_response&& rhs ) throw()
 {
     _status = std::move( rhs._status );
     _headers = std::move( rhs._headers );
@@ -132,7 +132,7 @@ ck_string server_response::get_body_as_string() const
     return ck_string( (char*)_body->map().get_ptr(), bodySize );
 }
 
-void server_response::write_response( shared_ptr<ck_stream_io> sok )
+void server_response::write_response( ck_stream_io& sok )
 {
     ck_string messageHeader = ck_string::format( "RTSP/1.0 %d %s\r\n", _status, get_status_message( _status ).c_str() );
 
@@ -157,15 +157,15 @@ void server_response::write_response( shared_ptr<ck_stream_io> sok )
 
     messageHeader += ck_string::format( "\r\n" );
 
-    ssize_t bytesSent = sok->send( messageHeader.c_str(), messageHeader.length() );
-    if( !sok->valid() || (bytesSent != (int32_t)messageHeader.length()) )
+    ssize_t bytesSent = sok.send( messageHeader.c_str(), messageHeader.length() );
+    if( !sok.valid() || (bytesSent != (int32_t)messageHeader.length()) )
         CK_STHROW( rtsp_500_exception, ("I/O error.") );
 
     if( bodySize )
     {
-        bytesSent = sok->send( _body->map().get_ptr(), bodySize );
+        bytesSent = sok.send( _body->map().get_ptr(), bodySize );
 
-        if( !sok->valid() || (bytesSent != (int32_t)bodySize) )
+        if( !sok.valid() || (bytesSent != (int32_t)bodySize) )
             CK_STHROW( rtsp_500_exception, ("I/O error.") );
     }
 }

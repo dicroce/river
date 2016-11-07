@@ -44,12 +44,12 @@ class client_request
 public:
     CK_API client_request( method m = M_OPTIONS );
     CK_API client_request( const client_request& rhs );
-    CK_API client_request( client_request&& rhs ) noexcept;
+    CK_API client_request( client_request&& rhs ) throw();
 
-    CK_API virtual ~client_request() noexcept;
+    CK_API virtual ~client_request() throw();
 
     CK_API client_request& operator = ( const client_request& rhs );
-    CK_API client_request& operator = ( client_request&& rhs ) noexcept;
+    CK_API client_request& operator = ( client_request&& rhs ) throw();
 
     CK_API void set_method( method m );
     CK_API method get_method() const;
@@ -71,7 +71,7 @@ public:
     CK_API void set_uri( const cppkit::ck_string& uri );
     CK_API cppkit::ck_string get_uri() const;
 
-    CK_API void write_request( std::shared_ptr<cppkit::ck_stream_io> sok );
+    CK_API void write_request( cppkit::ck_stream_io& sok );
 
 private:
     method _method;

@@ -51,7 +51,6 @@ class rtsp_server
 {
 public:
     CK_API rtsp_server( const cppkit::ck_string& serverIP, int port = 554 );
-    CK_API rtsp_server(  cppkit::ck_socket::ck_socket_type type, const cppkit::ck_string& serverIP, int port = 554 );
     CK_API virtual ~rtsp_server() throw();
 
     CK_API void attach_session_prototype( std::shared_ptr<session_base> session );

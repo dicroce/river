@@ -58,24 +58,6 @@ rtsp_server::rtsp_server( const ck_string& serverIP, int port ) :
     _serverSocket->listen();
 }
 
-rtsp_server::rtsp_server( ck_socket::ck_socket_type type, const ck_string& serverIP, int port ) :
-    _thread(),
-    _port( port ),
-    _running( false ),
-    _sessionPrototypes(),
-    _sessions(),
-    _connections(),
-    _serverSocket( make_shared<ck_socket>( type ) ),
-    _serverIP( serverIP ),
-    _sessionsLock(),
-    _connectionsLock(),
-    _prototypesLock(),
-    _aliveCheck( 1000, std::bind( &rtsp_server::check_inactive_sessions, this ) )
-{
-    _serverSocket->bind( _port, _serverIP );
-    _serverSocket->listen();
-}
-
 rtsp_server::~rtsp_server() throw()
 {
     if( _running )
@@ -168,8 +150,8 @@ void* rtsp_server::_entry_point()
     {
         try
         {
-            int32_t timeoutMillis = 250;
-            bool timedOut = _serverSocket->wait_recv( timeoutMillis );
+            uint64_t timeoutMillis = 250;
+            _serverSocket->recv_wont_block( timeoutMillis );
 
             if( !_serverSocket->valid() )
                 _running = false;
@@ -177,17 +159,14 @@ void* rtsp_server::_entry_point()
             if( !_running )
                 continue;
 
-            if( !timedOut )
+            shared_ptr<server_connection> serverConnection = make_shared<server_connection>( this, _serverSocket->accept() );
+
             {
-                shared_ptr<server_connection> serverConnection = make_shared<server_connection>( this, _serverSocket->accept() );
+                unique_lock<recursive_mutex> guard( _connectionsLock );
 
-                {
-                    unique_lock<recursive_mutex> guard( _connectionsLock );
+                _connections.push_back( serverConnection );
 
-                    _connections.push_back( serverConnection );
-
-                    serverConnection->start();
-                }
+                serverConnection->start();
             }
 
             {

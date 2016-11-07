@@ -37,9 +37,9 @@ using namespace river;
 using namespace cppkit;
 using namespace std;
 
-server_connection::server_connection( rtsp_server* server, shared_ptr<ck_socket> clientSocket) :
+server_connection::server_connection( rtsp_server* server, ck_socket clientSocket ) :
     _thread(),
-    _clientSocket( clientSocket ),
+    _clientSocket( std::move(clientSocket) ),
     _server( server ),
     _sessionID(),
     _myrunning( false ),
@@ -74,31 +74,33 @@ void server_connection::_entry_point()
     {
         try
         {
-            if( !_clientSocket->valid() )
+            if( !_clientSocket.valid() )
             {
                 CK_LOG_NOTICE("[server_connection|%s] client socket not valid shutting down",_sessionID.c_str());
                 _myrunning = false;
                 continue;
             }
 
-            int waitMillis = 2000;
-            bool timedOut = _clientSocket->wait_recv( waitMillis );
-
-            if( !timedOut )
+            uint64_t waitMillis = 2000;
+            if( _clientSocket.recv_wont_block(waitMillis) )
             {
+                // we need buffered_recv() equivalent here. If the recv_wont_block() pops out because the other side
+                // closed their end, we need a way to determine if their is actual data in our buffer without having
+                // to throw due to a timed out recv().
+
                 shared_ptr<server_request> request = make_shared<server_request>();
                 request->read_request( _clientSocket );
 
-                if( !_clientSocket->valid() )
+                if( !_clientSocket.valid() )
                 {
                     CK_LOG_NOTICE("[server_connection|%s] client socket not valid shutting down",_sessionID.c_str());
                     _myrunning = false;
                     continue;
                 }
 
-                ck_string peerIP = _clientSocket->get_peer_ip();
+                ck_string peerIP = _clientSocket.get_peer_ip();
                 request->set_peer_ip( peerIP );
-                request->set_local_ip( _clientSocket->get_local_ip() );
+                request->set_local_ip( _clientSocket.get_local_ip() );
 
                 ck_string sessionHeader;
                 bool hasSessionHeader = request->get_header( "Session", sessionHeader );
@@ -139,14 +141,13 @@ void server_connection::_entry_point()
                     response->set_header( "Session", _sessionID );
 
                 response->write_response( _clientSocket );
-                if( !_clientSocket->valid() )
+                if( !_clientSocket.valid() )
                 {
                     CK_LOG_NOTICE("[server_connection|%s] client socket not valid shutting down",_sessionID.c_str());
                     _myrunning = false;
                     continue;
                 }
             }
-            else CK_LOG_INFO("[server_connection|%s] Timed out",_sessionID.c_str());
         }
         catch( exception& ex )
         {
@@ -164,14 +165,14 @@ bool server_connection::running() const
 void server_connection::write_interleaved_packet( uint8_t channel, shared_ptr<cppkit::ck_memory> buffer )
 {
     uint8_t token = 36;
-    _clientSocket->send( &token, 1 );
+    _clientSocket.send( &token, 1 );
 
-    _clientSocket->send( &channel, 1 );
+    _clientSocket.send( &channel, 1 );
 
     int16_t length = (int16_t)buffer->size_data();
     int16_t lengthWord = ck_htons( length );
 
-    _clientSocket->send( &lengthWord, 2 );
+    _clientSocket.send( &lengthWord, 2 );
 
-    _clientSocket->send( buffer->map().get_ptr(), buffer->size_data() );
+    _clientSocket.send( buffer->map().get_ptr(), buffer->size_data() );
 }

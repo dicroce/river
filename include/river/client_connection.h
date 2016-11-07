@@ -46,10 +46,10 @@ public:
     CK_API client_connection( const cppkit::ck_string& serverIP, int port );
     CK_API virtual ~client_connection() throw();
 
-    CK_API bool connect( int timeoutMillis = 5000 );
+    CK_API void connect();
     CK_API void disconnect();
 
-    CK_API void set_recv_timeout( int timeoutMillis ) { _recvTimeoutMillis = timeoutMillis; }
+    CK_API void set_recv_timeout( uint64_t timeoutMillis ) { _ioTimeOut = timeoutMillis; }
 
     CK_API void write_request( std::shared_ptr<client_request> request );
 
@@ -67,10 +67,10 @@ private:
 
     cppkit::ck_string _serverIP;
     int _serverPort;
-    std::shared_ptr<cppkit::ck_socket> _sok;
+    cppkit::ck_socket _sok;
     int _sequence;
     cppkit::ck_string _sessionID;
-    int _recvTimeoutMillis;
+    uint64_t _ioTimeOut;
 };
 
 }

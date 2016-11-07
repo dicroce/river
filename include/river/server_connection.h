@@ -44,14 +44,12 @@ class server_connection
 {
 public:
     CK_API server_connection( rtsp_server* server,
-                              std::shared_ptr<cppkit::ck_socket> clientSocket = std::make_shared<cppkit::ck_socket>() );
+                              cppkit::ck_socket clientSocket );
 
     CK_API virtual ~server_connection() throw();
 
     CK_API void start();
     CK_API void stop();
-
-    CK_API inline std::shared_ptr<cppkit::ck_socket> get_socket() { return _clientSocket; }
 
     CK_API bool running() const;
 
@@ -66,7 +64,7 @@ private:
     void _entry_point();
 
     std::thread _thread;
-    std::shared_ptr<cppkit::ck_socket> _clientSocket;
+    cppkit::ck_socket _clientSocket;
     rtsp_server* _server;
     cppkit::ck_string _sessionID;
     //Called "myrunning" even though it sounds douche, because it indicates the base class has a "running" member

@@ -48,14 +48,14 @@ client_response::client_response( const client_response& rhs ) :
 {
 }
 
-client_response::client_response( client_response&& rhs ) noexcept :
+client_response::client_response( client_response&& rhs ) throw() :
     _headerPieces( std::move( rhs._headerPieces ) ),
     _statusCode( std::move( rhs._statusCode ) ),
     _body( std::move( rhs._body ) )
 {
 }
 
-client_response::~client_response() noexcept
+client_response::~client_response() throw()
 {
 }
 
@@ -68,7 +68,7 @@ client_response& client_response::operator = ( const client_response& obj )
     return *this;
 }
 
-client_response& client_response::operator = ( client_response&& obj ) noexcept
+client_response& client_response::operator = ( client_response&& obj ) throw()
 {
     _headerPieces = std::move( obj._headerPieces );
     _statusCode = std::move( obj._statusCode );
@@ -100,7 +100,7 @@ ck_string client_response::get_body_as_string() const
     return ck_string( (char*)_body.map().get_ptr(), _body.size_data() );
 }
 
-void client_response::read_response( shared_ptr<ck_stream_io> sok )
+void client_response::read_response( ck_stream_io& sok )
 {
     do
     {
@@ -118,9 +118,9 @@ void client_response::read_response( shared_ptr<ck_stream_io> sok )
             do
             {
                 char character = 0;
-                recvCount = (int)sok->recv( &character, 1 );
+                recvCount = (int)sok.recv( &character, 1 );
 
-                if( !sok->valid() || (recvCount != 1) )
+                if( !sok.valid() || (recvCount != 1) )
                     CK_STHROW(river_exception, ("Failed to read or invalid socket."));
 
                 if ( character == '\n' )
@@ -181,12 +181,12 @@ vector<ck_string> client_response::get_methods() const
     CK_STHROW(river_exception, ("No \"Public\" method found!"));
 }
 
-void client_response::_receive_body( shared_ptr<ck_stream_io> sok, size_t bodySize )
+void client_response::_receive_body( ck_stream_io& sok, size_t bodySize )
 {
     _body.clear();
 
-    size_t bytesRead = sok->recv( _body.extend_data(bodySize).get_ptr(), bodySize );
-    if( !sok->valid() || (bytesRead != bodySize) )
+    size_t bytesRead = sok.recv( _body.extend_data(bodySize).get_ptr(), bodySize );
+    if( !sok.valid() || (bytesRead != bodySize) )
         CK_STHROW(river_exception, ("IO error or invalid socket."));
 }
 

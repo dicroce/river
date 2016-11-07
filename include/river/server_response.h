@@ -48,12 +48,12 @@ class server_response
 public:
     CK_API server_response();
     CK_API server_response( const server_response& obj );
-    CK_API server_response( server_response&& obj ) noexcept;
+    CK_API server_response( server_response&& obj ) throw();
 
-    CK_API virtual ~server_response() noexcept;
+    CK_API virtual ~server_response() throw();
 
     CK_API server_response& operator = ( const server_response& rhs );
-    CK_API server_response& operator = ( server_response&& rhs ) noexcept;
+    CK_API server_response& operator = ( server_response&& rhs ) throw();
 
     CK_API void set_status( status s );
     CK_API status get_status() const;
@@ -67,7 +67,7 @@ public:
     CK_API void set_body( const cppkit::ck_string& body );
     CK_API cppkit::ck_string get_body_as_string() const;
 
-    CK_API void write_response( std::shared_ptr<cppkit::ck_stream_io> sok );
+    CK_API void write_response( cppkit::ck_stream_io& sok );
 
     // Factory Methods...
     //

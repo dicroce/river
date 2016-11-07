@@ -37,10 +37,10 @@ using namespace std;
 client_connection::client_connection( const cppkit::ck_string& serverIP, int port ) :
     _serverIP( serverIP ),
     _serverPort( port ),
-    _sok( new ck_socket ),
+    _sok(),
     _sequence( 0 ),
     _sessionID(),
-    _recvTimeoutMillis( 5000 )
+    _ioTimeOut( 5000 )
 {
 }
 
@@ -48,16 +48,16 @@ client_connection::~client_connection() throw()
 {
 }
 
-bool client_connection::connect( int timeoutMillis )
+void client_connection::connect()
 {
-    return _sok->query_connect( _serverIP, _serverPort, timeoutMillis );
+    _sok.connect( _serverIP, _serverPort );
 }
 
 void client_connection::disconnect()
 {
     _sequence = 0;
     _sessionID = "";
-    _sok->close();
+    _sok.close();
 }
 
 void client_connection::write_request( shared_ptr<client_request> request )
@@ -113,9 +113,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
     {
         maxIterations--;
 
-        size_t bytesRead = _sok->recv( &dollarSign, 1, _recvTimeoutMillis );
+        size_t bytesRead = _sok.recv( &dollarSign, 1 ); 
 
-        if( !_sok->valid() )
+        if( !_sok.valid() )
             return false;
 
         if( bytesRead == 0 )
@@ -127,9 +127,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
             continue;
         }
 
-        bytesRead = _sok->recv( &channel, 1, _recvTimeoutMillis );
+        bytesRead = _sok.recv( &channel, 1 ); 
 
-        if( !_sok->valid() )
+        if( !_sok.valid() )
             return false;
 
         if( bytesRead == 0 )
@@ -142,9 +142,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
         }
 
         uint16_t sizeShort;
-        bytesRead = _sok->recv( &sizeShort, 2, _recvTimeoutMillis );
+        bytesRead = _sok.recv( &sizeShort, 2 ); 
 
-        if( !_sok->valid() )
+        if( !_sok.valid() )
             return false;
 
         if( bytesRead == 0 )
@@ -160,9 +160,9 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
             continue;
         }
 
-        bytesRead = _sok->recv( buffer->extend_data( length ).get_ptr(), length, _recvTimeoutMillis );
+        bytesRead = _sok.recv( buffer->extend_data( length ).get_ptr(), length );
 
-        if( !_sok->valid() )
+        if( !_sok.valid() )
             return false;
 
         if( bytesRead == 0 )
