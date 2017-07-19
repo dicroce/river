@@ -31,7 +31,7 @@
 #define river_client_request_h
 
 #include "cppkit/ck_string.h"
-#include "cppkit/ck_stream_io.h"
+#include "cppkit/interfaces/ck_stream_io.h"
 #include "river/methods.h"
 #include <memory>
 #include <map>

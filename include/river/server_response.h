@@ -31,7 +31,7 @@
 #define _river_server_response_h
 
 #include "cppkit/ck_socket.h"
-#include "cppkit/ck_stream_io.h"
+#include "cppkit/interfaces/ck_stream_io.h"
 #include "cppkit/ck_memory.h"
 
 #include "river/status.h"

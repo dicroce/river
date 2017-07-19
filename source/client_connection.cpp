@@ -113,13 +113,7 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
     {
         maxIterations--;
 
-        size_t bytesRead = _sok.recv( &dollarSign, 1 ); 
-
-        if( !_sok.valid() )
-            return false;
-
-        if( bytesRead == 0 )
-            return false;
+        _sok.recv( &dollarSign, 1 ); 
 
         if( dollarSign != 36 )
         {
@@ -127,13 +121,7 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
             continue;
         }
 
-        bytesRead = _sok.recv( &channel, 1 ); 
-
-        if( !_sok.valid() )
-            return false;
-
-        if( bytesRead == 0 )
-            return false;
+        _sok.recv( &channel, 1 ); 
 
         if( channel > 2 )
         {
@@ -142,13 +130,7 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
         }
 
         uint16_t sizeShort;
-        bytesRead = _sok.recv( &sizeShort, 2 ); 
-
-        if( !_sok.valid() )
-            return false;
-
-        if( bytesRead == 0 )
-            return false;
+        _sok.recv( &sizeShort, 2 ); 
 
         length = ck_ntohs( sizeShort );
 
@@ -160,13 +142,7 @@ bool client_connection::receive_interleaved_packet( uint8_t& channel, std::share
             continue;
         }
 
-        bytesRead = _sok.recv( buffer->extend_data( length ).get_ptr(), length );
-
-        if( !_sok.valid() )
-            return false;
-
-        if( bytesRead == 0 )
-            return false;
+        _sok.recv( buffer->extend_data( length ).get_ptr(), length );
 
         return true;
     }

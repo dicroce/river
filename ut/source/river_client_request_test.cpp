@@ -99,7 +99,7 @@ void river_client_request_test::test_write_request()
 
     auto fu = std::async(std::launch::async, [&](){
         client_connection cc( "127.0.0.1", port );
-        UT_ASSERT( cc.connect() );
+        cc.connect();
         shared_ptr<client_request> req = make_shared<client_request>( M_DESCRIBE );
         req->set_uri( "/foo/bar" );
         req->set_header( "your", "mom" );

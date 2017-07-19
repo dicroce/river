@@ -33,7 +33,7 @@
 #include "river/methods.h"
 
 #include "cppkit/ck_socket.h"
-#include "cppkit/ck_stream_io.h"
+#include "cppkit/interfaces/ck_stream_io.h"
 #include <map>
 #include <list>
 

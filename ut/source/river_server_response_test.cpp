@@ -6,7 +6,7 @@
 #include "cppkit/os/ck_time_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <future>
+#include <thread>
 
 using namespace std;
 using namespace cppkit;
@@ -81,9 +81,9 @@ void river_server_response_test::test_write_response()
 {
     int port = UT_NEXT_PORT();
 
-    auto fu = std::async( std::launch::async, [&]() {
-        shared_ptr<ck_socket> sok = make_shared<ck_socket>();
-        sok->connect( "127.0.0.1", port );
+    thread t([&](){
+        ck_socket sok;
+        sok.connect( "127.0.0.1", port );
 
         server_response res;
         res.set_header( "boo", "ya" );
@@ -91,11 +91,12 @@ void river_server_response_test::test_write_response()
 
         res.write_response( sok );
     });
+    t.detach();
 
-    shared_ptr<ck_socket> serverSok = make_shared<ck_socket>();
-    serverSok->bind( port, ip4_addr_any );
-    serverSok->listen();
-    auto connected = serverSok->accept();
+    ck_socket serverSok;
+    serverSok.bind( port, ip4_addr_any );
+    serverSok.listen();
+    auto connected = serverSok.accept();
     client_response cres;
     cres.read_response( connected );
 

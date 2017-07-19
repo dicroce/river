@@ -188,9 +188,6 @@ void client_request::write_request( ck_stream_io& sok )
 
     message += ck_string::format( "\r\n" );
 
-    ssize_t bytesSent = sok.send( message.c_str(), message.length() );
-
-    if( !sok.valid() || (bytesSent != (int32_t)message.length()) )
-        CK_STHROW( rtsp_500_exception, ("I/O error.") );
+    sok.send( message.c_str(), message.length() );
 }
 

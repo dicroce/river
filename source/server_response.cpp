@@ -157,17 +157,10 @@ void server_response::write_response( ck_stream_io& sok )
 
     messageHeader += ck_string::format( "\r\n" );
 
-    ssize_t bytesSent = sok.send( messageHeader.c_str(), messageHeader.length() );
-    if( !sok.valid() || (bytesSent != (int32_t)messageHeader.length()) )
-        CK_STHROW( rtsp_500_exception, ("I/O error.") );
+    sok.send( messageHeader.c_str(), messageHeader.length() );
 
     if( bodySize )
-    {
-        bytesSent = sok.send( _body->map().get_ptr(), bodySize );
-
-        if( !sok.valid() || (bytesSent != (int32_t)bodySize) )
-            CK_STHROW( rtsp_500_exception, ("I/O error.") );
-    }
+        sok.send( _body->map().get_ptr(), bodySize );
 }
 
 server_response server_response::create_response_to( method m )

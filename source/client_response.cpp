@@ -118,10 +118,8 @@ void client_response::read_response( ck_stream_io& sok )
             do
             {
                 char character = 0;
-                recvCount = (int)sok.recv( &character, 1 );
-
-                if( !sok.valid() || (recvCount != 1) )
-                    CK_STHROW(river_exception, ("Failed to read or invalid socket."));
+                sok.recv( &character, 1 );
+                ++recvCount;
 
                 if ( character == '\n' )
                 {
@@ -185,9 +183,7 @@ void client_response::_receive_body( ck_stream_io& sok, size_t bodySize )
 {
     _body.clear();
 
-    size_t bytesRead = sok.recv( _body.extend_data(bodySize).get_ptr(), bodySize );
-    if( !sok.valid() || (bytesRead != bodySize) )
-        CK_STHROW(river_exception, ("IO error or invalid socket."));
+    sok.recv( _body.extend_data(bodySize).get_ptr(), bodySize );
 }
 
 size_t client_response::_parse_lines( vector<ck_string>& lines )

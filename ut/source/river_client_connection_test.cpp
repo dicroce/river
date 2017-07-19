@@ -7,7 +7,7 @@
 #include "cppkit/os/ck_time_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <future>
+#include <thread>
 
 using namespace std;
 using namespace cppkit;
@@ -32,13 +32,14 @@ void river_client_connection_test::test_connect()
 
     // Also, you should probably always call fut.get() to propigate any exceptions thrown in the async task.
 
-    auto fut = std::async(std::launch::async, [&](){
+    thread t([&](){
         client_connection cc( "127.0.0.1", port );
-        UT_ASSERT( cc.connect() );
+        cc.connect();
         shared_ptr<client_request> req = make_shared<client_request>( M_OPTIONS );
         req->set_uri( "/foo/bar" );
         cc.write_request( req );
     });
+    t.detach();
 
     ck_socket server_sok;
     server_sok.bind( port, ip4_addr_any );
@@ -48,6 +49,4 @@ void river_client_connection_test::test_connect()
     sreq.read_request( connected );
 
     UT_ASSERT( sreq.get_uri() == "/foo/bar" );
-
-    fut.get();
 }

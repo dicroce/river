@@ -8,6 +8,8 @@ set(SOURCES source/framework.cpp
             source/river_rtsp_server_test.cpp
             source/river_rtp_test.cpp)
 
+set(APPLICATION_TYPE "NORMAL")
+
 set(COMMON_LIBS cppkit river)
 set(WINDOWS_LIBS DbgHelp ws2_32 iphlpapi)
 

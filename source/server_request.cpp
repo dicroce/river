@@ -166,9 +166,7 @@ void server_request::read_request( cppkit::ck_stream_io& sok )
 
     while( !lineDone && ((bytesReadThisLine+1) < MAX_HEADER_LINE) )
     {
-        ssize_t bytesRead = sok.recv( writer, 1 );
-        if( !sok.valid() || (bytesRead != 1) )
-            CK_STHROW( rtsp_500_exception, ( "IO error reading request." ));
+        sok.recv( writer, 1 );
 
         bytesReadThisLine += 1;
 
@@ -198,9 +196,7 @@ void server_request::read_request( cppkit::ck_stream_io& sok )
 
         while( !lineDone && ((bytesReadThisLine+1) < MAX_HEADER_LINE) )
         {
-            ssize_t bytesRead = sok.recv( writer, 1 );
-            if( !sok.valid() || (bytesRead != 1) )
-                CK_STHROW( rtsp_500_exception, ( "IO error reading request." ));
+            sok.recv( writer, 1 );
 
             bytesReadThisLine += 1;
 

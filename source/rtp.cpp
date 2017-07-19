@@ -2,7 +2,6 @@
 #include "river/rtp.h"
 
 #include "cppkit/ck_byte_ptr.h"
-#include "cppkit/ck_bitsy.h"
 #include "cppkit/ck_socket.h"
 
 using namespace cppkit;
@@ -20,10 +19,10 @@ uint16_t river::rtp_parse_sequence( ck_byte_ptr packet )
 
 bool river::rtp_parse_marker( ck_byte_ptr packet )
 {
-    ck_bitsy<const uint8_t*> bitsy( packet.get_ptr(), packet.get_ptr() + packet.length() );
-    bitsy.skip_bits( 8 );
-
-    return (bitsy.get_bits( 1 ) > 0) ? true : false;
+    packet += 1;
+    const uint8_t MARKER_MASK = 0x80;
+    uint8_t byte = packet.read<uint8_t>();
+    return (byte & MARKER_MASK) > 0;
 }
 
 uint32_t river::rtp_parse_timestamp( ck_byte_ptr packet )
@@ -37,28 +36,22 @@ uint32_t river::rtp_parse_timestamp( ck_byte_ptr packet )
 
 ck_byte_ptr river::rtp_parse_payload( ck_byte_ptr packet )
 {
-    ck_bitsy<const uint8_t*> bitsy( packet.get_ptr(), packet.get_ptr() + packet.length() );
+    const uint8_t EXT_MASK = 0x10;
+    const uint8_t CSRC_COUNT_MASK = 0xF;
 
-    bitsy.skip_bits( 3 );
-    uint32_t extension = bitsy.get_bits( 1 );
-    uint32_t csrcCount = bitsy.get_bits( 4 );
-    bitsy.skip_bits( 8 );
+    uint8_t firstByte = packet.read<uint8_t>();
 
-    size_t payloadOffset = 12;
-    packet += payloadOffset;
+    uint32_t extension = firstByte & EXT_MASK;
+    uint32_t csrcCount = firstByte & CSRC_COUNT_MASK;
 
-    for( uint32_t i = 0; i < csrcCount; i++ )
+    packet += 12 + (csrcCount * sizeof(uint32_t));
+
+    if( extension )
     {
-        packet += 4;
-        payloadOffset += 4;
+        uint16_t shortVal = packet.read<uint16_t>();
+        uint16_t numExtWords = ck_ntohs(shortVal);
+        packet += 2 + (numExtWords * sizeof(uint32_t));
     }
 
-    if( extension == 1 )
-    {
-        uint32_t extensionSize = (ck_ntohs( *(uint16_t*)packet ) + 1) * 4;
-        packet += extensionSize;
-        payloadOffset += extensionSize;
-    }
-
-    return ck_byte_ptr( packet.get_ptr(), (packet.length() - payloadOffset) );
+    return ck_byte_ptr( packet.get_ptr(), (packet.length() - packet.offset()) );
 }
